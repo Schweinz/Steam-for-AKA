@@ -212,6 +212,17 @@ def main():
         # Display the results in the text widget
         display_recommendations(sorted_recommendations, result_text)
 
+        # Perform search and sorting performance timing
+        start_time = time.time()
+        recommendations = recommend_games_iterative(games, budget, min_rating) if search_method.get() == "iterative" else recommend_games_recursive(games, budget, min_rating)
+        search_duration = time.time() - start_time
+
+        start_time = time.time()
+        sorted_recommendations = sort_games_iterative(recommendations, "price") if sort_method.get() == "iterative" else sort_games_recursive(recommendations, "price")
+        sort_duration = time.time() - start_time
+
+        messagebox.showinfo("Performance", f"Search Method Duration: {search_duration:.10f} seconds\nSorting Method Duration: {sort_duration:.10f} seconds")
+
     tk.Button(root, text="Get Recommendations", command=process_recommendations).pack(pady=10)
 
     # Text widget to display the game recommendations with a scrollbar
