@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import simpledialog, messagebox
 import sys
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
 
 sys.setrecursionlimit(2000)  # Increase recursion limit to handle larger lists
 
@@ -87,8 +88,15 @@ def main():
     plt.xlabel('Number of Games')
     plt.ylabel('Time (seconds)')
     plt.title('Comparison of Iterative vs Recursive Process Speed')
+
+    # Setting x-axis to snap at every 100 games
+    plt.gca().xaxis.set_major_locator(MultipleLocator(100))  # X-axis snaps every 100 games
+
+    # Adding grid and legend
     plt.legend()
     plt.grid(True)
+
+    # Show the plot
     plt.show()
 
 if __name__ == "__main__":
