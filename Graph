@@ -92,6 +92,13 @@ def main():
     # Setting x-axis to snap at every 100 games
     plt.gca().xaxis.set_major_locator(MultipleLocator(100))  # X-axis snaps every 100 games
 
+    # Annotating where the lines snap
+    for i in range(0, len(sizes), 2):  # Annotate every other snap point (for readability)
+        plt.annotate(f'{iterative_times[i]:.10f} s', (sizes[i], iterative_times[i]),
+                     textcoords="offset points", xytext=(0, 10), ha='center', color='blue', fontsize=9)
+        plt.annotate(f'{recursive_times[i]:.10f} s', (sizes[i], recursive_times[i]),
+                     textcoords="offset points", xytext=(0, 10), ha='center', color='red', fontsize=9)
+
     # Adding grid and legend
     plt.legend()
     plt.grid(True)
