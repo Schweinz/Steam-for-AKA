@@ -1,0 +1,117 @@
+import random
+import time
+import tkinter as tk
+from tkinter import simpledialog, messagebox
+import sys
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
+
+sys.setrecursionlimit(2000)  # Increase recursion limit to handle larger lists
+
+def sort_games_iterative(games, key):
+    """
+    Iterative approach to sort games by a specified key.
+    """
+    for i in range(len(games)):
+        for j in range(len(games) - i - 1):
+            if games[j][key] > games[j + 1][key]:
+                games[j], games[j + 1] = games[j + 1], games[j]
+    return games
+
+def sort_games_recursive(games, key, n=None):
+    """
+    Recursive approach to sort games by a specified key.
+    """
+    if n is None:
+        n = len(games)
+    if n <= 1:
+        return games
+    for i in range(n - 1):
+        if games[i][key] > games[i + 1][key]:
+            games[i], games[i + 1] = games[i + 1], games[i]
+    return sort_games_recursive(games, key, n - 1)
+
+def generate_games(num_games):
+    game_names = [
+        "The Witcher 3: Wild Hunt", "Cyberpunk 2077", "Red Dead Redemption 2", "Minecraft", 
+        "Grand Theft Auto V", "The Last of Us Part II", "Elden Ring", "Assassin's Creed Valhalla", 
+        "Overwatch 2", "Call of Duty: Modern Warfare II", "The Legend of Zelda: Breath of the Wild", 
+        "God of War Ragnarök", "Hades", "Hollow Knight", "Super Mario Odyssey", "Fortnite"
+    ]
+    games = []
+    for i in range(num_games):
+        name = random.choice(game_names)
+        games.append({
+            "name": name,
+            "price": round(random.uniform(1, 60), 2),
+            "rating": round(random.uniform(1, 5), 1)
+        })
+    return games
+
+def get_user_input(root, prompt, type_=float):
+    while True:
+        try:
+            response = simpledialog.askstring("Input", prompt, parent=root)
+            if response is None:
+                return None
+            return type_(response)
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Please enter a valid value.")
+
+def main():
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+
+    # Get user input (not used in this case since we're sorting only)
+    budget = get_user_input(root, "Enter your budget (in USD): ")
+    if budget is None:
+        return
+    min_rating = get_user_input(root, "Enter the minimum acceptable rating (1-5): ")
+    if min_rating is None:
+        return
+
+    # Record times for varying data sizes
+    sizes = range(0, 1001, 100)  # Include 0 as the starting size
+    iterative_times = [0]  # Starting point for iterative times
+    recursive_times = [0]  # Starting point for recursive times
+
+    for size in sizes[1:]:  # Start from 100 to avoid repeating 0 index
+        games = generate_games(size)
+
+        # Measure iterative sort time
+        start_time = time.time()
+        sort_games_iterative(games, 'price')
+        iterative_times.append(time.time() - start_time)
+
+        # Measure recursive sort time
+        start_time = time.time()
+        sort_games_recursive(games, 'price')
+        recursive_times.append(time.time() - start_time)
+
+    # Plotting the comparison graph
+    plt.figure(figsize=(10, 6))
+    plt.plot(sizes, iterative_times, label='Iterative Sort', color='blue', marker='o')
+    plt.plot(sizes, recursive_times, label='Recursive Sort', color='red', marker='x')
+    plt.xlabel('Number of Games')
+    plt.ylabel('Time (seconds)')
+    plt.title('Comparison of Iterative vs Recursive Sort Speed')
+
+    # Setting x-axis to snap at every 100 games
+    plt.gca().xaxis.set_major_locator(MultipleLocator(100))  # X-axis snaps every 100 games
+
+    # Annotating where the lines snap
+    for i in range(0, len(sizes), 2):  # Annotate every other snap point (for readability)
+        plt.annotate(f'{iterative_times[i]:.10f} s', (sizes[i], iterative_times[i]),
+                     textcoords="offset points", xytext=(0, 10), ha='center', color='blue', fontsize=9)
+        plt.annotate(f'{recursive_times[i]:.10f} s', (sizes[i], recursive_times[i]),
+                     textcoords="offset points", xytext=(0, 10), ha='center', color='red', fontsize=9)
+
+    # Adding grid and legend
+    plt.legend()
+    plt.grid(True)
+
+    # Show the plot
+    plt.show()
+
+if __name__ == "__main__":
+    main()
